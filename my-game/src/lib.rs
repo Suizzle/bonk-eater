@@ -18,6 +18,7 @@ turbo::init! {
     struct GameState {
         frame: u32,
         last_munch_at: u32,
+        difficulty: u32,
         dog_x: f32,
         dog_y: f32,
         dog_r: f32,
@@ -38,6 +39,7 @@ turbo::init! {
         Self {
             frame: 0,
             last_munch_at: 0,
+            difficulty: 1,
             dog_x: 128.0,
             dog_y: 112.0,
             dog_r: 8.0,
@@ -75,8 +77,8 @@ turbo::go! {
     }
 
     // Generate new deathcoins at random intervals
-    if rand() % 64 == 0 {
-        // Create a new coin with random attributes
+    if rand() % (512 / state.difficulty) == 0 {
+        // Create a new deathCoin with random attributes
         let deathCoin = DeathCoin {
             x: (rand() % 256) as f32,
             y: 0.0,
@@ -104,9 +106,9 @@ turbo::go! {
         if radii_diff <= distance && distance <= radii_sum {
             // Dog caught the coin
             state.score += 1;
+            state.difficulty +=1;
             // TODO: Play coin sound
             // TODO: Send the new score to the devnet counter program to make the game fully on chain
-            // TODO: increase frequency of deathcoin generation each time player scores
             state.last_munch_at = state.frame;
             false // Remove the coin from the game
         } else if coin.y < 144. + (coin.radius * 2.) {
