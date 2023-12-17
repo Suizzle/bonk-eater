@@ -132,7 +132,8 @@ turbo::go! {
 
         if radii_diff <= distance && distance <= radii_sum {
             // Dog caught the deathCoin
-            // TODO: end the game here: make canvas all black and play death sound
+            // TODO: end the game here: 
+            // make canvas all black, play death sound and pass score to frontend
             state.last_munch_at = state.frame;
             false // Remove the coin from the game
         } else if deathCoin.y < 144. + (deathCoin.radius * 2.) {
