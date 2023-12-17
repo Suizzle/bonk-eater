@@ -6,9 +6,6 @@ turbo::cfg! {r#"
     description = "Collect the BONK before you bite the death coin! Death is temporary! Play again and again!"
     [settings]
     resolution = [256, 144]
-    [solana]
-    http-rpc-url = "http://devnet.solana.com"
-    ws-rpc-url = "ws://devnet.solana.com"
 "#}
 
 // TODO: Get pubkey or better yet get signer from JS context
@@ -28,7 +25,7 @@ turbo::init! {
             radius: f32,
             vel: f32,
         }>,
-        deathCoins: Vec<struct DeathCoin {
+        death_coins: Vec<struct DeathCoin {
             x: f32,
             y: f32,
             radius: f32,
@@ -41,10 +38,10 @@ turbo::init! {
             last_munch_at: 0,
             difficulty: 1,
             dog_x: 128.0,
-            dog_y: 112.0,
+            dog_y: 125.0,
             dog_r: 8.0,
             coins: vec![],
-            deathCoins: vec![],
+            death_coins: vec![],
             score: 0,
         }
     }
@@ -78,14 +75,14 @@ turbo::go! {
 
     // Generate new deathcoins at random intervals
     if rand() % (512 / state.difficulty) == 0 {
-        // Create a new deathCoin with random attributes
-        let deathCoin = DeathCoin {
+        // Create a new death_coin with random attributes
+        let death_coin = DeathCoin {
             x: (rand() % 256) as f32,
             y: 0.0,
             radius: (rand() % 10 + 5) as f32,
             vel: (rand() % 3 + 1) as f32,
         };
-        state.deathCoins.push(deathCoin);
+        state.death_coins.push(death_coin);
     }
 
     // Update coin positions and check for coin collisions with the dog
@@ -120,26 +117,26 @@ turbo::go! {
 
     // Update deathcoin positions and check for coin collisions with the dog
     let dog_center = (state.dog_x + state.dog_r, state.dog_y + state.dog_r);
-    state.deathCoins.retain_mut(|deathCoin| {
-        deathCoin.y += deathCoin.vel;
+    state.death_coins.retain_mut(|death_coin| {
+        death_coin.y += death_coin.vel;
         // Check for collision with the dog
-        let deathCoin_center = (deathCoin.x + deathCoin.radius, deathCoin.y + deathCoin.radius);
+        let death_coin_center = (death_coin.x + death_coin.radius, death_coin.y + death_coin.radius);
 
         // Calculate the distance between the dog and the coin
-        let dx = dog_center.0 - coin_center.0;
-        let dy = dog_center.1 - coin_center.1;
+        let dx = dog_center.0 - death_coin_center.0;
+        let dy = dog_center.1 - death_coin_center.1;
 
         let distance = (dx * dx + dy * dy).sqrt();
-        let radii_sum = state.dog_r + deathCoin.radius;
-        let radii_diff = (state.dog_r - deathCoin.radius).abs();
+        let radii_sum = state.dog_r + death_coin.radius;
+        let radii_diff = (state.dog_r - death_coin.radius).abs();
 
         if radii_diff <= distance && distance <= radii_sum {
-            // Dog caught the deathCoin
+            // Dog caught the death_coin
             // TODO: end the game here: 
             // make canvas all black, play death sound and pass score to frontend
             state.last_munch_at = state.frame;
             false // Remove the coin from the game
-        } else if deathCoin.y < 144. + (deathCoin.radius * 2.) {
+        } else if death_coin.y < 144. + (death_coin.radius * 2.) {
             true // Keep the coin in the game if it's within the screen
         } else {
             false // Remove the coin if it's off-screen
@@ -180,10 +177,10 @@ turbo::go! {
         circ!(x = coin.x as i32, y = coin.y as i32, d = coin.radius as u32, fill = 0xf1c232ff); // Render the coins
     }
 
-    for deathCoin in &state.deathCoins {
-        circ!(x = coin.x as i32, y = coin.y as i32 + 1, d = (coin.radius + 2.) as u32, fill = 0x000000aa); // Render the deathcoins
-        circ!(x = coin.x as i32, y = coin.y as i32, d = (coin.radius + 1.) as u32, fill = 0xea9999ff); // Render the deathcoins
-        circ!(x = coin.x as i32, y = coin.y as i32, d = coin.radius as u32, fill = 0x990000ff); // Render the deathcoins
+    for death_coin in &state.death_coins {
+        circ!(x = death_coin.x as i32, y = death_coin.y as i32 + 1, d = (death_coin.radius + 2.) as u32, fill = 0x000000aa); // Render the deathcoins
+        circ!(x = death_coin.x as i32, y = death_coin.y as i32, d = (death_coin.radius + 1.) as u32, fill = 0xea9999ff); // Render the deathcoins
+        circ!(x = death_coin.x as i32, y = death_coin.y as i32, d = death_coin.radius as u32, fill = 0x990000ff); // Render the deathcoins
     }
 
     // Draw the score
