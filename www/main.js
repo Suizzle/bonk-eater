@@ -24,8 +24,31 @@ const SPRITES = [
   "/sprites/pepe.png",
   "/sprites/heart.png",
   "/sprites/munch_cat.png",
-    // Add as many as you have in your /sprites folder
+  // Add as many as you have in your /sprites folder
 ];
+
+/**************************************************/
+
+// This proxy prevents WebAssembly.LinkingError from being thrown
+// prettier-ignore
+window.createWasmImportsProxy = (target = {}) => {
+  console.log("imports", target);
+  return new Proxy(target, {
+    get: (target, namespace) => {
+        // Stub each undefined namespace with a Proxy
+        target[namespace] = target[namespace] ?? new Proxy({}, {
+            get: (_, prop) => {
+                // Generate a sub function for any accessed property
+                return (...args) => {
+                    console.log(`Calling ${namespace}.${prop} with arguments:`, args);
+                    // Implement the actual function logic here
+                };
+            }
+        });
+        return target[namespace];
+      }
+  })
+};
 
 /**************************************************/
 
@@ -81,8 +104,6 @@ try {
     },
     config: {
       resolution: RESOLUTION,
-      tileSize: [16, 16],
-      fps: 60,
     },
   });
 } catch (err) {
