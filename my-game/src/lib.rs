@@ -104,6 +104,7 @@ turbo::go! {
         if radii_diff <= distance && distance <= radii_sum {
             // Dog caught the coin
             state.score += 1;
+            // TODO: Play coin sound
             // TODO: Send the new score to the devnet counter program to make the game fully on chain
             state.last_munch_at = state.frame;
             false // Remove the coin from the game
@@ -131,7 +132,7 @@ turbo::go! {
 
         if radii_diff <= distance && distance <= radii_sum {
             // Dog caught the deathCoin
-            // TODO: end the game here;
+            // TODO: end the game here: make canvas all black and play death sound
             state.last_munch_at = state.frame;
             false // Remove the coin from the game
         } else if deathCoin.y < 144. + (deathCoin.radius * 2.) {
