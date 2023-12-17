@@ -106,6 +106,7 @@ turbo::go! {
             state.score += 1;
             // TODO: Play coin sound
             // TODO: Send the new score to the devnet counter program to make the game fully on chain
+            // TODO: increase frequency of deathcoin generation each time player scores
             state.last_munch_at = state.frame;
             false // Remove the coin from the game
         } else if coin.y < 144. + (coin.radius * 2.) {
